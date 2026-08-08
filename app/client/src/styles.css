@@ -1,0 +1,146 @@
+:root {
+  color-scheme: light dark;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --border: color-mix(in srgb, currentColor 20%, transparent);
+  --danger: #b3261e;
+}
+
+body {
+  margin: 0;
+  padding: 2rem 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.app {
+  width: 100%;
+  max-width: 32rem;
+}
+
+h1 {
+  margin-top: 0;
+  font-size: 1.75rem;
+}
+
+.todo-form-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.todo-form label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.todo-form input {
+  flex: 1;
+  padding: 0.5rem;
+  font: inherit;
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+}
+
+.todo-form input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+button {
+  padding: 0.5rem 0.875rem;
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  background: transparent;
+  color: inherit;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.field-error {
+  margin: 0.375rem 0 0;
+  color: var(--danger);
+  font-size: 0.875rem;
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--danger);
+  border-radius: 0.375rem;
+  color: var(--danger);
+}
+
+.todo-filters {
+  display: flex;
+  gap: 1rem;
+  margin: 1.25rem 0;
+}
+
+.todo-filters a {
+  color: inherit;
+  text-decoration: none;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.todo-filters a[aria-current='page'] {
+  outline: 1px solid var(--border);
+  font-weight: 600;
+}
+
+.todo-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--border);
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.todo-title,
+.todo-edit {
+  flex: 1;
+}
+
+.todo-edit {
+  padding: 0.375rem;
+  font: inherit;
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+}
+
+.todo-item.completed .todo-title {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.empty-state {
+  padding: 1.5rem 0;
+  opacity: 0.7;
+}
+
+.app-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+
+
+
