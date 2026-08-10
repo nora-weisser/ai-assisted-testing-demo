@@ -6,7 +6,7 @@ const containerised = Boolean(process.env.BASE_URL);
 const baseURL = process.env.BASE_URL ?? 'http://localhost:3000';
 
 export default defineConfig({
-  testDir: './tests',
+  testDir: './specs',
   // One worker: the app keeps todos in a single in-memory store, so parallel
   // workers would reset each other mid-test. At this suite's size serial is
   // also simply faster — worker startup costs more than the parallelism saves.
@@ -31,7 +31,10 @@ export default defineConfig({
   webServer: containerised
     ? undefined
     : {
+        // The app lives in its own project one level up; app:up is a root
+        // script, so the server is started from the repo root, not from here.
         command: 'npm run app:up',
+        cwd: '..',
         url: `${baseURL}/api/health`,
         reuseExistingServer: true,
         timeout: 120_000,

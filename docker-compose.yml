@@ -25,10 +25,12 @@ services:
 
   playwright:
     profiles: ['test']
-    # Must match the @playwright/test version in package.json exactly, or the
-    # bundled browsers and the library disagree at runtime.
+    # Must match the @playwright/test version in tests/package.json exactly,
+    # or the bundled browsers and the library disagree at runtime.
     image: mcr.microsoft.com/playwright:v1.62.1-noble
-    working_dir: /work
+    # The test suite is its own project under tests/, with its own
+    # package.json and playwright.config.ts.
+    working_dir: /work/tests
     depends_on:
       web:
         condition: service_healthy
@@ -39,6 +41,6 @@ services:
       - .:/work
       # Anonymous volumes keep the host's macOS-built node_modules from
       # shadowing the Linux ones installed inside the container.
-      - /work/node_modules
+      - /work/tests/node_modules
       - /work/app/node_modules
     command: sh -c "npm ci && npx playwright test"

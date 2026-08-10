@@ -6,12 +6,7 @@
     "app:dev": "npm --prefix app install && npm --prefix app run dev",
     "app:up": "docker compose up -d --wait",
     "app:down": "docker compose down -v",
-    "test": "playwright test",
+    "test": "npm --prefix tests install && npm --prefix tests test",
     "test:docker": "docker compose --profile test run --rm playwright"
-  },
-  "devDependencies": {
-    "@playwright/test": "1.62.1",
-    "@types/node": "^22.10.5",
-    "typescript": "^5.7.3"
   }
 }
