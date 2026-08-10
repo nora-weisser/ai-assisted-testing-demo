@@ -1,0 +1,14 @@
+{
+  "name": "ai-assisted-testing-demo-tests",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.3"
+  }
+}
