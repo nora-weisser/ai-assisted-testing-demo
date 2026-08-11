@@ -6,7 +6,7 @@ boundaries and error paths are out of scope here.
 
 ## Rules
 
-- Import `test`/`expect` from `fixtures/pom/test-options` only.
+- Import `test`/`expect` from `fixtures/test-options` only.
 - Exactly two tags: one level tag (`@e2e` or `@api`) plus `@public`.
 - Locators: `getByRole` → `getByLabel` → `getByPlaceholder` → `getByText`. No `getByTestId`.
 - Web-first assertions only. No `waitForTimeout`.

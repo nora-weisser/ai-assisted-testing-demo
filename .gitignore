@@ -7,3 +7,5 @@ playwright/.cache/
 .env
 *.log
 .DS_Store
+.playwright/
+.playwright-cli/
