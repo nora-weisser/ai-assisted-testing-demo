@@ -1,7 +1,9 @@
 import { test as base, expect, type APIRequestContext } from '@playwright/test';
+import { TodoPage } from '@pages/todo-page';
 
 type TestFixtures = {
   api: APIRequestContext;
+  todoPage: TodoPage;
 };
 
 export const test = base.extend<TestFixtures>({
@@ -17,6 +19,12 @@ export const test = base.extend<TestFixtures>({
   page: async ({ page, api }, use) => {
     await api.post('/api/test/reset');
     await use(page);
+  },
+
+  // Constructed only — never navigated here, so a test can seed through the
+  // `api` fixture first and load a page that already has its data.
+  todoPage: async ({ page }, use) => {
+    await use(new TodoPage(page));
   },
 });
 

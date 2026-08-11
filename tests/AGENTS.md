@@ -11,11 +11,14 @@ You are an Automation Test Engineer working in Playwright + TypeScript. You writ
 ## Layout
 
 ```
-fixtures/pom/test-options.ts   the only import point for `test` and `expect`
+fixtures/test-options.ts       the only import point for `test` and `expect`
+pages/todo-page.ts             TodoPage — locators and actions for the todo screen
 specs/*.spec.ts                test files
 playwright.config.ts           baseURL, single worker, chromium, webServer
-tsconfig.json                  strict, noEmit
+tsconfig.json                  strict, noEmit, path aliases
 ```
+
+Imports use path aliases, never relative hops: `@fixtures/*`, `@pages/*`, `@specs/*`. They are declared in `tsconfig.json` under `paths`; Playwright resolves them itself, so no runtime resolver is installed or needed.
 
 This is a standalone npm project with its own `package.json`. `npm test` runs the suite, `npm run typecheck` runs `tsc --noEmit`. From the repo root, `npm run test:docker` runs the same suite inside the Playwright container.
 
@@ -26,7 +29,7 @@ Two reference documents, both outside this directory:
 
 ## MUST
 
-- **Import from the fixture file.** `import { expect, test } from '../fixtures/pom/test-options'` — never import `test` or `expect` straight from `@playwright/test` in a spec.
+- **Import from the fixture file.** `import { expect, test } from '@fixtures/test-options'` — never import `test` or `expect` straight from `@playwright/test` in a spec.
 - **Locator priority.** `getByRole()` → `getByLabel()` → `getByPlaceholder()` → `getByText()`. Stop at the first that works.
 - **Web-first assertions only.** `await expect(locator).toHaveText(...)`, `toHaveCount(...)`, `toBeChecked()`. Never `page.waitForTimeout()`.
 - **Two tags per test, no more:** one level tag (`@e2e` or `@api`) plus `@public`. Tags go on the individual `test()` call, never on `test.describe()`.
@@ -40,7 +43,7 @@ Two reference documents, both outside this directory:
 
 - Read `../docs/todo-app.md` before asserting on behaviour. It records decisions tests must match rather than guess at — duplicate titles are allowed, a malformed id returns `404` not `400`, a second `DELETE` returns `404`, filter switches fire no request, the footer is hidden while loading.
 - Assert on semantics, not styling. Completed items get a strike-through via CSS only; assert the checkbox state.
-- Name new specs `specs/<area>.spec.ts`. Add a page object under `fixtures/pom/` only once a locator set is genuinely reused — there are none yet, and one spec does not justify one.
+- Name new specs `specs/<area>.spec.ts`. Reach the todo screen through the `todoPage` fixture (`TodoPage`) rather than raw `page.getByRole(...)` calls in a spec; extend `pages/todo-page.ts` when a screen grows a new control. Page objects live in `pages/`, one file per screen; fixtures that expose them live in `fixtures/test-options.ts`. Keep page objects assertion-free — they expose locators and actions, the spec owns the `expect`s.
 - Reset state via the fixtures rather than by hand. The `page` fixture already calls `POST /api/test/reset` before each test.
 - Keep tests independent and order-free. Use `test.beforeEach` for setup; share no mutable state between tests.
 - Prefer `page.route()` when a test needs a slow or failing response — the API has no delay or fault-injection hook.
@@ -53,7 +56,7 @@ Two reference documents, both outside this directory:
 - **No magic values scattered through specs.** Timeouts belong in `playwright.config.ts`; a URL belongs in `baseURL`.
 - **No parallelism.** The app keeps todos in one global in-memory store, so the suite is single-worker on purpose. Do not raise `workers` or add `test.describe.parallel`.
 - **No exploratory files committed** — nothing whose sole purpose is dumping HTML or probing page structure.
-- **No new tooling without being asked.** The only dev dependencies are `@playwright/test`, `typescript` and `@types/node`. There is no ESLint, no Prettier, no Faker, no path aliases.
+- **No new tooling without being asked.** The only dev dependencies are `@playwright/test`, `typescript` and `@types/node`. There is no ESLint, no Prettier, no Faker. The path aliases are tsconfig-only — do not add a resolver package for them.
 
 ## Environment
 

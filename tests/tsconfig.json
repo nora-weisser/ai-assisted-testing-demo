@@ -9,7 +9,13 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["node"]
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@fixtures/*": ["fixtures/*"],
+      "@pages/*": ["pages/*"],
+      "@specs/*": ["specs/*"]
+    }
   },
-  "include": ["playwright.config.ts", "fixtures/**/*.ts", "specs/**/*.ts"]
+  "include": ["playwright.config.ts", "fixtures/**/*.ts", "pages/**/*.ts", "specs/**/*.ts"]
 }

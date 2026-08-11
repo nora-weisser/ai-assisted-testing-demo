@@ -1,28 +1,26 @@
-import { expect, test } from '../fixtures/pom/test-options';
+import { expect, test } from '@fixtures/test-options';
 
-test.beforeEach(async ({ page }) => {
-  await page.goto('/');
+test.beforeEach(async ({ todoPage }) => {
+  await todoPage.goto();
 });
 
 test('TC-S01: app shell renders with the empty state', { tag: ['@e2e', '@public'] }, async ({
-  page,
+  todoPage,
 }) => {
-  await expect(page.getByRole('heading', { name: 'Todos' })).toBeVisible();
-  await expect(page.getByRole('textbox', { name: 'What needs to be done?' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Add' })).toBeVisible();
-  await expect(page.getByText('Nothing to do yet. Add your first todo.')).toBeVisible();
-  await expect(page.getByRole('status')).toHaveText('0 items left');
+  await expect(todoPage.heading).toBeVisible();
+  await expect(todoPage.newTodoInput).toBeVisible();
+  await expect(todoPage.addButton).toBeVisible();
+  await expect(todoPage.emptyState).toBeVisible();
+  await expect(todoPage.counter).toHaveText('0 items left');
 });
 
-test('TC-S02: a todo can be added', { tag: ['@e2e', '@public'] }, async ({ page }) => {
+test('TC-S02: a todo can be added', { tag: ['@e2e', '@public'] }, async ({ todoPage }) => {
   const title = 'Water the plants';
-  const input = page.getByRole('textbox', { name: 'What needs to be done?' });
 
-  await input.fill(title);
-  await page.getByRole('button', { name: 'Add' }).click();
+  await todoPage.add(title);
 
-  await expect(page.getByRole('listitem')).toHaveCount(1);
-  await expect(page.getByRole('listitem').filter({ hasText: title })).toBeVisible();
-  await expect(input).toHaveValue('');
-  await expect(page.getByRole('status')).toHaveText('1 item left');
+  await expect(todoPage.items).toHaveCount(1);
+  await expect(todoPage.item(title)).toBeVisible();
+  await expect(todoPage.newTodoInput).toHaveValue('');
+  await expect(todoPage.counter).toHaveText('1 item left');
 });
