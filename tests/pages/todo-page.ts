@@ -36,4 +36,19 @@ export class TodoPage {
     await this.newTodoInput.fill(title);
     await this.addButton.click();
   }
+
+  async remove(title: string): Promise<void> {
+    await this.page.getByRole('button', { name: `Delete ${title}` }).click();
+  }
+
+  /**
+   * Opens the inline editor and saves with Enter. The edit input keeps the
+   * *original* title in its accessible name while it is open.
+   */
+  async edit(title: string, newTitle: string): Promise<void> {
+    await this.page.getByRole('button', { name: `Edit ${title}` }).click();
+    const editInput = this.page.getByRole('textbox', { name: `Edit ${title}` });
+    await editInput.fill(newTitle);
+    await editInput.press('Enter');
+  }
 }

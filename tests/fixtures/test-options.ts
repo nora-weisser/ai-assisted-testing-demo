@@ -13,12 +13,15 @@ export const test = base.extend<TestFixtures>({
     await context.dispose();
   },
 
-  // Auto-runs before each test: empties the store so no test inherits state
-  // from the one before it. The store is global, which is why the suite runs
-  // single-worker — see workers in playwright.config.ts.
+  // Auto-runs around each test: empties the store before, so no test inherits
+  // state from the one before it, and again after, so a test leaves the app in
+  // the same empty state it found — no spec needs to undo its own data by hand.
+  // The store is global, which is why the suite runs single-worker — see
+  // workers in playwright.config.ts.
   page: async ({ page, api }, use) => {
     await api.post('/api/test/reset');
     await use(page);
+    await api.post('/api/test/reset');
   },
 
   // Constructed only — never navigated here, so a test can seed through the
