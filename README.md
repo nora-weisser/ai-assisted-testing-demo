@@ -2,7 +2,7 @@
 
 ## Companion repo for the talk.
 
-📊 [Slides](#) · 🎥 [Recording](#) · 📖 [Command reference](docs/commands.md)
+📖 [Command reference](docs/commands.md)
 
 If you're here straight after the session, the two-minute version is below. Everything you watched is reproducible from this repo.
 
