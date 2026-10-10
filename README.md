@@ -1,4 +1,5 @@
 # Just Enough Context: Teaching Claude to test with Playwright.
+Presented at the [BrowserStack Meetup Amsterdam: AI's Impact on QA](https://luma.com/browse-mtmg), August 2026.
 
 ## Companion repo for the talk.
 
