@@ -100,6 +100,12 @@ reproduce the whole demo:
 - [playwright-mcp](https://github.com/microsoft/playwright-mcp) — official CLI vs MCP guidance
 - [MCP vs CLI token efficiency](https://www.checklyhq.com/blog/mcp-vs-cli-token-efficiency/) — 2026 re-measurement
 
+## License
+
+[MIT](LICENSE), except the third-party skills in `tests/.claude/skills/`, which keep their own licences:
+`playwright-cli` and `playwright-trace` are installed from Microsoft's Playwright tools (Apache 2.0),
+and `skill-creator` ships with its own [Apache 2.0 licence](tests/.claude/skills/skill-creator/LICENSE.txt).
+
 ## Find me
 
 [Blog](https://noraweisser.com/) ·
