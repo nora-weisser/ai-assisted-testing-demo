@@ -104,3 +104,37 @@ Read the "Favourite" button in `docs/app.md`. When does `aria-pressed` change, r
 In a failing trace, find the `PUT /api/favourites/…` request. When did it finish, compared to the reload's `GET /api/events`?
 
 </details>
+
+---
+
+## Exercise 03 — Payment, usually
+
+**File:** `specs/flaky/f03-payment.spec.ts` · **Level:** medium · **Fails:** roughly 1 run in 2 (measured 7–15 of 20)
+
+An API test: hold seats, create an order, check it was confirmed with a ticket
+code. There's a comment explaining why one second is enough.
+
+```bash
+npx playwright test specs/flaky/f03-payment.spec.ts --repeat-each=20
+```
+
+**Starter prompt**
+
+```
+specs/flaky/f03-payment.spec.ts is an API test that fails about half the time.
+Read docs/app.md for how orders are processed, then explain the failure. Replace
+the sleep with something that waits exactly as long as needed and no longer, and
+gives a useful message if the order is never confirmed.
+```
+
+<details><summary>Hint 1</summary>
+
+What HTTP status does `POST /api/orders` return, and what does that status mean?
+
+</details>
+
+<details><summary>Hint 2</summary>
+
+Playwright has an assertion that repeatedly calls a function until its result matches.
+
+</details>
