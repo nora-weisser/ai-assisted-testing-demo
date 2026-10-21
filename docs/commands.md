@@ -8,20 +8,15 @@ to reproduce the demo, or jump to the step you care about.
 ## 0. Before you start
 
 ```bash
-npm install
-npm run app:up            
+npm run app:up            # http://localhost:3000
+cd tests && npm install
+npm run test:smoke        # 5 green tests — the baseline
+npm run test:flaky        # the exercises — these fail on purpose (step 4)
 ```
 
-- The app -> http://localhost:3000
-- Swagger documentation -> http://localhost:3000/api/docs
+Stop everything with `npm run app:down` from the repo root when you're finished.
 
-```bash
-npm test                  # the suite; two specs fail on purpose
-npm run app:down          # stop everything when you're finished
-```
-
-Two failures are the demo material, not a broken checkout: `DEBUG_TRACE` (step 3) and
-`DEBUG_CLI` (step 4).
+Start your agent **in `tests/`**: that's where `CLAUDE.md` imports `AGENTS.md`.
 
 ---
 
@@ -44,10 +39,11 @@ npx playwright trace install-skill    # -> playwright-trace/ : reading a trace f
 
 `install --skills` writes the CLI's capabilities reorganised into workflows, layered so an agent reads only the part a task needs. Rename the parent folder if your tooling expects `.agents/` or `.github/` instead of `.claude/skills/`.
 
-The other two are already in this repo, hand-written rather than installed — copy the folder and they work anywhere:
+The other three are already in this repo, hand-written rather than installed — copy the folder and they work anywhere:
 
-- [`tests/.claude/skills/implement-test-case/`](../tests/.claude/skills/implement-test-case/) — the workflow used in step 2
-- [`tests/.claude/skills/skill-creator/`](../tests/.claude/skills/skill-creator/) — writes and evaluates the other three
+- [`tests/.claude/skills/implement-test-case/`](../tests/.claude/skills/implement-test-case/) — the workflow used in step 3
+- [`tests/.claude/skills/fix-flaky-test/`](../tests/.claude/skills/fix-flaky-test/) — the workflow used in step 4
+- [`tests/.claude/skills/skill-creator/`](../tests/.claude/skills/skill-creator/) — writes and evaluates the others
 
 Check what you've got, and read one before you trust it:
 
@@ -142,48 +138,63 @@ Other cases with a timing trap: `TC-S08` (a `202` payment), `TC-S09` (debounced 
 
 ---
 
-## 4. Let it debug a failure from the trace
+## 4. Fix a flaky test from its traces
 
-`DEBUG_TRACE` fails on purpose. Produce a trace:
-
-```bash
-npx playwright test -g "DEBUG_TRACE" --trace on
-```
-
-Look at it yourself first, so you know what the agent is working from:
+Five tests in `tests/specs/flaky/` pass *sometimes* — see [`docs/exercises.md`](exercises.md).
+Exercise 01 is the one for the stage: it fails most runs, but not all.
 
 ```bash
-npx playwright show-report                        # the HTML report — for humans
-npx playwright trace open <path-to-trace.zip>     # text representation of the trace
+cd tests
+npx playwright test specs/flaky/f01-search.spec.ts              # one run — may pass
+npx playwright test specs/flaky/f01-search.spec.ts --repeat-each=20 --trace on
 ```
 
-Once a trace is open:
+Look at a failing trace yourself first, so you know what the agent is working from:
 
-- `npx playwright trace actions` — every action, in order
-- `npx playwright trace snapshot <n>` — the DOM at step *n*, not just the end state
-- `npx playwright trace requests` — network activity
-
-Then hand it over, in a fresh session:
-
-```
-The test case "DEBUG_TRACE" broke, please investigate the trace.
+```bash
+npx playwright trace open test-results/<failing-run>/trace.zip
+npx playwright trace actions --errors-only    # which step failed
+npx playwright trace requests --grep api      # two GET /api/events — which one did the test wait for?
+npx playwright trace snapshot <action-id>     # the DOM at that step: six cards, not two
+npx playwright trace close
 ```
 
-**Why this matters more than it looks.** Without the trace skill, an agent debugging a failure
-has one `error_context.md` file from the moment things broke.
-From that it will construct a confident, plausible explanation, which is sometimes right. The
-trace gives it the whole sequence instead, so it can point at the step where things actually
-diverged.
+Then hand it over, in a fresh session in `tests/`:
+
+```
+specs/flaky/f01-search.spec.ts is flaky. Find the root cause and fix it.
+```
+
+The `fix-flaky-test` skill should fire on its own. For more structure, use the prompt
+[`tests/.claude/prompts/fix_flaky_test.md`](../tests/.claude/prompts/fix_flaky_test.md):
+
+```
+@.claude/prompts/fix_flaky_test.md specs/flaky/f01-search.spec.ts
+```
+
+What a good answer looks like: the root cause in one sentence (it waited for the page's initial,
+unfiltered load), `waitForResponse` and `allTextContents()` replaced by a web-first
+`toHaveText([...])`, and 20 of 20 green — reported, not claimed.
+
+**Why this matters more than it looks.** Without the trace, an agent debugging a failure has one
+`error-context.md` from the moment things broke. From that it will construct a confident,
+plausible explanation, which is sometimes right. The trace gives it the whole sequence instead, so
+it can point at the step where things actually diverged.
+
+Reset the exercise before the next attempt:
+
+```bash
+git checkout -- specs/flaky/
+```
 
 ---
 
 ## 5. Step through a live test
 
-For when a recording isn't enough and you want the agent *inside* the test. `DEBUG_CLI` is the
-one to use.
+For when a recording isn't enough and you want the agent *inside* the test. From `tests/`:
 
 ```bash
-npx playwright test -g "DEBUG_CLI" --headed --debug=cli
+npx playwright test specs/flaky/f01-search.spec.ts --headed --debug=cli
 ```
 
 This starts the test, pauses it, and prints a **session id**. Then, from another terminal:
@@ -201,18 +212,13 @@ you opened by hand.
 Would you debug this way? Probably not, you have an IDE. But an agent can't click a breakpoint
 or drag a timeline, and this is the same debugger in a form it can operate.
 
-Ask the agent:
+Ask the agent, with the prompt
+[`tests/.claude/prompts/debug_playwright_test.md`](../tests/.claude/prompts/debug_playwright_test.md):
 
 ```
-The tests/specs/debug-demo.spec.ts test is failing.
+@.claude/prompts/debug_playwright_test.md specs/flaky/f01-search.spec.ts
+```
 
-Please run Playwright with --debug=cli, read the installed Playwright CLI skills,
-attach to the debugging session, investigate the failure, and suggest a fix.
-```
-OR with prompt [`tests/.claude/prompts/debug_playwright_test.md`](../tests/.claude/prompts/debug_playwright_test.md):
-```
-@tests/.claude/prompts/debug_playwright_test.md  debug-demo.spec.ts
-```
 ---
 
 ## 6. Bonus: annotate a page and get fixes back
@@ -246,4 +252,4 @@ The tools will change. The question underneath doesn't:
 
 > **What is the smallest set of things this agent needs in order to be right?**
 
-Reading list: at the end of [tests/AGENTS.md](../tests/AGENTS.md#resources).
+Reading list: [Resources](../README.md#resources) in the README.
