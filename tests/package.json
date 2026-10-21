@@ -5,6 +5,7 @@
   "scripts": {
     "test": "playwright test",
     "test:smoke": "playwright test specs/smoke.spec.ts",
+    "test:flaky": "playwright test specs/flaky --repeat-each=20",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

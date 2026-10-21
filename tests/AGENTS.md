@@ -15,6 +15,7 @@ fixtures/test-options.ts     the only import point for `test` and `expect`
 pages/                       EventsPage, EventPage, OrderPage — locators and actions
 support/api-types.ts         response types for API calls
 specs/*.spec.ts              test files
+specs/flaky/                 workshop exercises: deliberately flaky, don't fix unless asked
 global-setup.ts              clears leftover data once per run
 playwright.config.ts         baseURL, 2 workers, fullyParallel, retries 0
 ```
@@ -40,7 +41,7 @@ Reference: `../docs/app.md` — features, API contract, timing behaviour, and th
 - **Web-first assertions.** `await expect(locator).toHaveText(...)` retries; `expect(await locator.textContent())` does not.
 - **Book seats through the `seats` fixture.** It gives each parallel worker its own row. Never hard-code seat ids.
 - **Seed and check through the `api` fixture.** It shares the page's cookie, so it acts as the same customer.
-- **Two tags per test:** one level tag (`@e2e` or `@api`) plus `@smoke`, on `test()`, never on `test.describe()`.
+- **Two tags per test:** one level tag (`@e2e` or `@api`) plus `@smoke` (or `@flaky` for the exercises), on `test()`, never on `test.describe()`.
 - **Title format** `TC-<ID>: what is exercised`. Reuse the ID from the test plan rather than inventing one.
 - **Type safety.** Strict mode; no `any`, no non-null `!`. Braces on every block.
 - **Verify before reporting done.** Run the affected test with `--repeat-each=20` plus `npm run typecheck`. One green run proves nothing for a timing bug — report the pass count you actually saw.
