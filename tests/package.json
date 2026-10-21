@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "test": "playwright test",
+    "test:smoke": "playwright test specs/smoke.spec.ts",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

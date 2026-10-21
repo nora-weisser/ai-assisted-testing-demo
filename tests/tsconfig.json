@@ -14,8 +14,9 @@
     "paths": {
       "@fixtures/*": ["fixtures/*"],
       "@pages/*": ["pages/*"],
+      "@support/*": ["support/*"],
       "@specs/*": ["specs/*"]
     }
   },
-  "include": ["playwright.config.ts", "fixtures/**/*.ts", "pages/**/*.ts", "specs/**/*.ts"]
+  "include": ["playwright.config.ts", "global-setup.ts", "fixtures/**/*.ts", "pages/**/*.ts", "support/**/*.ts", "specs/**/*.ts"]
 }
