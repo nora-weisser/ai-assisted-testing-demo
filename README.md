@@ -26,7 +26,7 @@ The failure mode isn't too little context or too much. It's the right fact in th
 
 - [`tests/AGENTS.md`](tests/AGENTS.md) — the always-on layer. Short on purpose. **Start here.**
 - [`tests/.claude/skills/`](tests/.claude/skills/) — `playwright-cli`, `playwright-trace`, `implement-test-case` and `skill-creator`
-- [`docs/smoke-test-plan.md`](docs/smoke-test-plan.md) — plain-language test plan, the demo's input
+- [`docs/test-plan.md`](docs/test-plan.md) — plain-language test plan, the demo's input
 - [`docs/commands.md`](docs/commands.md) — every command, prompt and skill from the talk, in demo order
 - [`docs/app.md`](docs/app.md) — what the app does, its API, and its timing
 - `app/` — the todo app under test

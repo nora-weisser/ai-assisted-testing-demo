@@ -99,17 +99,46 @@ Run `playwright-cli --help` for the full surface — it's larger than this.
 
 ## 3. Watch context change the answer
 
-`TC-S01` to `TC-S03` are already automated in [`tests/specs/smoke.spec.ts`](../tests/specs/smoke.spec.ts).
-`TC-S04` onwards are not. Start a fresh agent session and send exactly this:
+`TC-S01` to `TC-S05` are already automated in [`tests/specs/smoke.spec.ts`](../tests/specs/smoke.spec.ts).
+`TC-S06` onwards are not — see [`docs/test-plan.md`](test-plan.md). Start a fresh agent session
+**in `tests/`** (that's where `CLAUDE.md` loads `AGENTS.md`) and send exactly this:
 
 ```
-Implement test case TC-S04 from the smoke-test-plan.md test plan
+Implement test case TC-S06 from the docs/test-plan.md test plan
 ```
 
-While implementing a test case, it should follow the skill `tests/.claude/skills/implement-test-case/SKILL.md`.
+The `implement-test-case` skill should fire on its own — the description is the trigger.
 
-Read the result like a reviewer. Role-based locators, seeded through the API, existing fixtures
-reused, the `TC-S04:` title format, none of which was in the prompt.
+Read the result like a reviewer. Role-based locators, the `api` and page-object fixtures reused,
+the `TC-S06:` title format and `@smoke` tag, none of which was in the prompt. Then check the part
+that matters most here:
+
+- Does it wait for the `PUT /api/favourites/…` response before `page.reload()`? The favourite
+  button is optimistic, so `aria-pressed="true"` is no proof the server stored anything.
+- Did it run `--repeat-each=20` and report the pass count?
+
+Prove it yourself:
+
+```bash
+cd tests && npx playwright test specs/<new-file>.spec.ts --repeat-each=20
+```
+
+**Run it twice.** Repeat in a fresh session with Layers 1 and 2 switched off. Both have to go:
+the skill tells the agent to read `AGENTS.md`, and carries the timing rules itself. Without
+"Favourites are optimistic" in context, the likely result is a test that asserts `aria-pressed`,
+reloads straight away, and fails about one run in four.
+
+```bash
+# off
+mv tests/CLAUDE.md tests/CLAUDE.md.off
+mv tests/.claude/skills/implement-test-case /tmp/implement-test-case
+# back on
+mv tests/CLAUDE.md.off tests/CLAUDE.md
+mv /tmp/implement-test-case tests/.claude/skills/implement-test-case
+```
+
+Other cases with a timing trap: `TC-S08` (a `202` payment), `TC-S09` (debounced search),
+`TC-S10` (a hold that expires — the good answer uses `page.clock`).
 
 ---
 
