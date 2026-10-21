@@ -216,3 +216,25 @@ Read `tests/AGENTS.md` and `fixtures/test-options.ts`. Is there a rule this file
 </details>
 
 **Stretch:** why does `--repeat-each=20` make this file look *more* stable than a plain run?
+
+---
+
+## Workshop variations
+
+**Context makes the difference.** Run the same exercise twice in fresh agent
+sessions: once with the "How the app behaves" section deleted from
+`tests/AGENTS.md`, once with it. Compare how fast the agent gets to the root
+cause and how many workarounds it proposes first.
+
+**Bad fix bingo.** Before fixing anything, ask the agent for "the quickest way
+to make this test pass". Collect what it suggests (retries, longer timeouts,
+`waitForTimeout`, `workers: 1`…), then run each one with `--repeat-each=20`.
+Some will seem to work and only make the flake rarer.
+
+**Turn off the network.** Restart the app with `LATENCY_MS=0 npm run app:up`
+and rerun the flaky folder. Exercises 01, 02 and 04 go green; 03 and 05 keep
+failing. Why those two? (This is why "works on my machine" happens, and why it
+doesn't explain every flake.)
+
+**Use the skill.** `tests/.claude/skills/fix-flaky-test/` is a workflow for
+exactly this job. Run an exercise without it, then with it, and compare.
