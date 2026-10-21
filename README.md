@@ -1,11 +1,12 @@
 # Just Enough Context: Teaching Claude to test with Playwright.
-Presented at the [BrowserStack Meetup Amsterdam: AI's Impact on QA](https://luma.com/browse-mtmg), August 2026.
 
 ## Companion repo for the talk.
 
-📖 [Command reference](docs/commands.md)
+📖 [Command reference](docs/commands.md) · 🧪 [Exercises](docs/exercises.md)
 
 If you're here straight after the session, the two-minute version is below. Everything you watched is reproducible from this repo.
+
+First presented at the [BrowserStack Meetup Amsterdam: AI's Impact on QA](https://luma.com/browse-mtmg), August 2026, with a todo app. That version is tagged [`v1-meetup`](https://github.com/nora-weisser/ai-assisted-testing-demo/tree/v1-meetup).
 
 ---
 
@@ -14,23 +15,39 @@ If you're here straight after the session, the two-minute version is below. Ever
 Most context problems are filing problems. Each layer answers exactly one question — which is why none of them has to be long.
 
 1. Does **every** task need it? -> `AGENTS.md`: loaded every session, keep it short.
-2. Do **some** tasks need it? -> A **Skill**: Loaded only when the task matches.
-3. Only true **right now**? -> **CLI**: Fetched on demand, stays on disk.
-4. Only true **today**? -> Your prompt. The task you want Claude to perform for you.
+2. Do **some** tasks need it? -> A **Skill**: loaded only when the task matches.
+3. Only true **right now**? -> The **CLI**: fetched on demand, stays on disk.
+
+The prompt is just the task. Everything else the agent needs should already be in one of the three layers.
 
 The failure mode isn't too little context or too much. It's the right fact in the wrong place.
 
 ---
 
+## Two tasks, one app
+
+**Front Row** is a small concert-ticket app that behaves like a real one: every API call takes 50–350 ms, search is debounced, favourites are optimistic, seat holds expire, payments are confirmed in the background, and seats are shared between customers.
+
+- **Create a test case.** Automate `TC-S06` from the test plan. The trap: the favourite button flips before the server has saved it, so the obvious test is flaky.
+- **Fix a flaky test.** Five tests in `tests/specs/flaky/` pass *sometimes*. Find the cause in the traces, fix it without retries or sleeps, prove it over 20 runs.
+
+The same three layers do both jobs: the facts in `AGENTS.md` stop the agent writing a flaky test, and the same facts help it find the cause when one exists.
+
+---
+
 ## What's here
 
-- [`tests/AGENTS.md`](tests/AGENTS.md) — the always-on layer. Short on purpose. **Start here.**
-- [`tests/.claude/skills/`](tests/.claude/skills/) — `playwright-cli`, `playwright-trace`, `implement-test-case` and `skill-creator`
-- [`docs/test-plan.md`](docs/test-plan.md) — plain-language test plan, the demo's input
+- [`tests/AGENTS.md`](tests/AGENTS.md) — the always-on layer. Short on purpose. **Start here.** [`tests/CLAUDE.md`](tests/CLAUDE.md) imports it for Claude Code.
+- [`tests/.claude/skills/`](tests/.claude/skills/) — `implement-test-case`, `fix-flaky-test`, `playwright-cli`, `playwright-trace` and `skill-creator`
+- [`tests/.claude/prompts/`](tests/.claude/prompts/) — reusable prompts
+- [`docs/test-plan.md`](docs/test-plan.md) — plain-language test plan, the input for creating tests
+- [`docs/exercises.md`](docs/exercises.md) — the five flaky-test exercises, with starter prompts and hints
 - [`docs/commands.md`](docs/commands.md) — every command, prompt and skill from the talk, in demo order
 - [`docs/app.md`](docs/app.md) — what the app does, its API, and its timing
-- `app/` — the todo app under test
-- `tests/specs/` — the suite, written to the conventions in `tests/AGENTS.md`
+- `app/` — Front Row, the app under test
+- `tests/specs/` — the smoke suite and the flaky exercises
+
+Answers to the exercises live on the [`solutions`](https://github.com/nora-weisser/ai-assisted-testing-demo/tree/solutions) branch. Try first.
 
 `AGENTS.md` is real, not an example. It's the file this repo actually runs on, the only way to
 tell whether it works.
@@ -42,18 +59,15 @@ tell whether it works.
 ```bash
 git clone https://github.com/nora-weisser/ai-assisted-testing-demo
 cd ai-assisted-testing-demo
-npm install
-npm run app:up
+npm run app:up                 # http://localhost:3000 (Docker)
+cd tests && npm install
+npm run test:smoke             # the stable baseline: 5 green tests
+npm run test:flaky             # the exercises, 20 repeats each — these fail on purpose
 ```
 
-Then open:
+Stop everything with `npm run app:down` from the repo root.
 
-- The app -> http://localhost:3000
-- Swagger documentation -> http://localhost:3000/api/docs
-
-Run the suite with `npm test`, and stop everything with `npm run app:down`.
-
-Needs NodeJS, Docker and a coding agent with shell access (Claude Code, Copilot CLI, or Cursor).
+Needs Node.js 22, Docker and a coding agent with shell access (Claude Code, Copilot CLI, or Cursor). Start the agent **in `tests/`**, so it loads `AGENTS.md`.
 
 ---
 
@@ -64,10 +78,10 @@ reproduce the whole demo:
 
 **[docs/commands.md](docs/commands.md)**
 
-- Installing the CLI and all four skills
+- Installing the CLI and the skills
 - Seeing what the agent actually receives from a page
-- The exact prompts, including the run-it-twice `AGENTS.md` comparison
-- Debugging a failing test from its trace
+- Creating a test case, and the run-it-twice context comparison
+- Fixing a flaky test from its traces
 - Stepping through a live test with `--debug=cli`
 
 ---
