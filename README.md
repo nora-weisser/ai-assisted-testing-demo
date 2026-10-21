@@ -28,7 +28,7 @@ The failure mode isn't too little context or too much. It's the right fact in th
 - [`tests/.claude/skills/`](tests/.claude/skills/) — `playwright-cli`, `playwright-trace`, `implement-test-case` and `skill-creator`
 - [`docs/smoke-test-plan.md`](docs/smoke-test-plan.md) — plain-language test plan, the demo's input
 - [`docs/commands.md`](docs/commands.md) — every command, prompt and skill from the talk, in demo order
-- [`docs/todo-app.md`](docs/todo-app.md) — what the app does, including the deliberate oddities
+- [`docs/app.md`](docs/app.md) — what the app does, its API, and its timing
 - `app/` — the todo app under test
 - `tests/specs/` — the suite, written to the conventions in `tests/AGENTS.md`
 

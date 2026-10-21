@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "app:dev": "npm --prefix app install && npm --prefix app run dev",
-    "app:up": "docker compose up -d --wait",
+    "app:dev": "npm --prefix app install && ENABLE_TEST_ROUTES=true HOLD_SECONDS=10 npm --prefix app run dev",
+    "app:up": "docker compose up -d --build --wait",
     "app:down": "docker compose down -v",
     "test": "npm --prefix tests install && npm --prefix tests test",
     "test:docker": "docker compose --profile test run --rm playwright"

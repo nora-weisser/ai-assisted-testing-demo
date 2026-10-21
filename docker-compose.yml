@@ -4,7 +4,7 @@ services:
   web:
     build:
       context: ./app
-    image: todo-app:local
+    image: front-row:local
     ports:
       - '3000:3000'
     environment:
@@ -12,6 +12,15 @@ services:
       # The suite relies on POST /api/test/reset for isolation, so the compose
       # stack enables it. A real deployment leaves it at the image default.
       ENABLE_TEST_ROUTES: 'true'
+      # Short holds so expiry can be exercised. The app's own default is 300.
+      HOLD_SECONDS: 10
+      # Simulated network: each API response takes 50–350 ms. This is what
+      # makes timing assumptions in tests fail some of the time, not always.
+      # `LATENCY_MS=0 npm run app:up` shows how "stable" a flaky test looks on
+      # a fast machine.
+      LATENCY_MS: ${LATENCY_MS:-50-350}
+      # How long the payment provider takes to confirm an order.
+      PAYMENT_PROCESSING_MS: '300-2000'
     healthcheck:
       test:
         - CMD
