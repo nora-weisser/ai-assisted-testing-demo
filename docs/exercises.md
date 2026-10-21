@@ -7,6 +7,8 @@ doing the investigation.
 The app is not broken. Every one of these tests makes an assumption about
 timing or shared data that is true on a good day and false on a bad one.
 
+Answers are on the `solutions` branch (`git checkout solutions`). Try first.
+
 ---
 
 ## Setup
