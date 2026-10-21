@@ -18,5 +18,5 @@
       "@specs/*": ["specs/*"]
     }
   },
-  "include": ["playwright.config.ts", "global-setup.ts", "fixtures/**/*.ts", "pages/**/*.ts", "support/**/*.ts", "specs/**/*.ts"]
+  "include": ["playwright.config.ts", "playwright.solutions.config.ts", "global-setup.ts", "fixtures/**/*.ts", "pages/**/*.ts", "support/**/*.ts", "specs/**/*.ts", "solutions/**/*.ts"]
 }

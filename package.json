@@ -9,6 +9,7 @@
     "test": "npm --prefix tests install && npm --prefix tests test",
     "test:smoke": "npm --prefix tests run test:smoke",
     "test:flaky": "npm --prefix tests run test:flaky",
+    "test:solutions": "npm --prefix tests run test:solutions",
     "test:docker": "docker compose --profile test run --rm playwright"
   }
 }
