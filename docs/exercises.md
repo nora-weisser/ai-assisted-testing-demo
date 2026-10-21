@@ -138,3 +138,39 @@ What HTTP status does `POST /api/orders` return, and what does that status mean?
 Playwright has an assertion that repeatedly calls a function until its result matches.
 
 </details>
+
+---
+
+## Exercise 04 — Waiting for the clock
+
+**File:** `specs/flaky/f04-hold-expiry.spec.ts` · **Level:** medium–hard · **Fails:** roughly 1 run in 2 (measured 4–7 of 10) · **Takes:** ~11 s per run
+
+Hold two seats, let the hold expire, check the seats are released. The test
+waits 10.2 seconds: the 10-second hold plus a safety margin.
+
+```bash
+npx playwright test specs/flaky/f04-hold-expiry.spec.ts --repeat-each=10
+```
+
+**Starter prompt**
+
+```
+specs/flaky/f04-hold-expiry.spec.ts waits 10.2 s for a 10 s seat hold to expire, and
+fails about half the time. Explain where the margin goes. Then rewrite it so
+it doesn't wait in real time at all, and so it would still pass if HOLD_SECONDS
+were changed to 300.
+```
+
+<details><summary>Hint 1</summary>
+
+The 10.2 s starts when the click returns. When does the hold actually start?
+
+</details>
+
+<details><summary>Hint 2</summary>
+
+The countdown runs on the browser's clock. Playwright can control that clock.
+
+</details>
+
+**Stretch:** once it's fixed, how long does the test take now?
