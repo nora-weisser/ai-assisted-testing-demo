@@ -7,6 +7,7 @@
     "app:up": "docker compose up -d --build --wait",
     "app:down": "docker compose down -v",
     "test": "npm --prefix tests install && npm --prefix tests test",
+    "test:smoke": "npm --prefix tests run test:smoke",
     "test:docker": "docker compose --profile test run --rm playwright"
   }
 }
