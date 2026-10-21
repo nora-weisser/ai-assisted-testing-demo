@@ -69,3 +69,38 @@ How many requests to `/api/events` does this page make, and in what order?
 Compare the URL of the response the test waited for, in a failing trace and a passing one.
 
 </details>
+
+---
+
+## Exercise 02 — The favourite that forgets
+
+**File:** `specs/flaky/f02-favourite.spec.ts` · **Level:** medium · **Fails:** roughly 1 run in 3 (measured 5–9 of 20)
+
+Favourite an event, reload, it should still be a favourite. The test even
+checks the button is pressed before reloading. Sometimes, after the reload,
+it isn't.
+
+```bash
+npx playwright test specs/flaky/f02-favourite.spec.ts --repeat-each=20
+```
+
+**Starter prompt**
+
+```
+specs/flaky/f02-favourite.spec.ts fails about a third of the time. Reproduce it,
+then compare the network activity in a failing trace and a passing trace. The test
+asserts aria-pressed="true" before reloading — explain why that assertion doesn't
+protect it. Fix the test, not the app.
+```
+
+<details><summary>Hint 1</summary>
+
+Read the "Favourite" button in `docs/app.md`. When does `aria-pressed` change, relative to the request?
+
+</details>
+
+<details><summary>Hint 2</summary>
+
+In a failing trace, find the `PUT /api/favourites/…` request. When did it finish, compared to the reload's `GET /api/events`?
+
+</details>
