@@ -174,3 +174,45 @@ The countdown runs on the browser's clock. Playwright can control that clock.
 </details>
 
 **Stretch:** once it's fixed, how long does the test take now?
+
+---
+
+## Exercise 05 — Front-row seats
+
+**File:** `specs/flaky/f05-front-row.spec.ts` · **Level:** hard · **Fails:** most runs (measured 6 of 6 plain runs), and not always the same test
+
+Two tests, both booking seats A1 and A2. Each passes on its own. Run the file
+and usually one of them fails — sometimes with an alert, sometimes with a
+30-second timeout. Which one fails changes from run to run.
+
+```bash
+# Run it like CI would, several times. --repeat-each actually hides this one.
+for i in 1 2 3 4 5; do npx playwright test specs/flaky/f05-front-row.spec.ts; done
+
+# Now compare:
+npx playwright test specs/flaky/f05-front-row.spec.ts --workers=1
+npx playwright test specs/flaky/f05-front-row.spec.ts -g "05a"
+```
+
+**Starter prompt**
+
+```
+The two tests in specs/flaky/f05-front-row.spec.ts each pass alone but one of them
+fails in most runs of the file, and it isn't always the same one. Work out what the
+two tests share and why the failure moves between them. Fix it so the tests can
+keep running in parallel — "use one worker" is not the fix.
+```
+
+<details><summary>Hint 1</summary>
+
+Each test is a separate customer. What do customers share?
+
+</details>
+
+<details><summary>Hint 2</summary>
+
+Read `tests/AGENTS.md` and `fixtures/test-options.ts`. Is there a rule this file breaks?
+
+</details>
+
+**Stretch:** why does `--repeat-each=20` make this file look *more* stable than a plain run?
