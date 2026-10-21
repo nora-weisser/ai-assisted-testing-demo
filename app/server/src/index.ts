@@ -1,59 +1,49 @@
+import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import express, { type NextFunction, type Request, type Response } from 'express';
-import swaggerUi from 'swagger-ui-express';
-import { sendError } from './errors.js';
-import { openApiDocument } from './openapi.js';
-import { todosRouter } from './routes/todos.js';
-import { testRouter } from './routes/test.js';
+import { config, randomIn } from './config.js';
+import { apiRouter, sendError, testRouter } from './routes.js';
 
-const PORT = Number.parseInt(process.env.PORT ?? '3000', 10);
-const TEST_ROUTES_ENABLED = process.env.ENABLE_TEST_ROUTES === 'true';
+const COOKIE = 'fr_uid';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const clientDir = path.resolve(here, '../client');
 
 const app = express();
-
 app.disable('x-powered-by');
-
-// Rejects non-JSON payloads before the parser silently leaves req.body empty,
-// which would otherwise surface as a confusing "title is required".
-app.use((req, res, next) => {
-  const hasBody = Number.parseInt(req.header('content-length') ?? '0', 10) > 0;
-  const isJson = req.is('application/json') !== false;
-
-  if (hasBody && !isJson) {
-    sendError(res, 415, 'UNSUPPORTED_MEDIA_TYPE', 'request body must be application/json');
-    return;
-  }
-  next();
-});
-
 app.use(express.json());
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.get('/api/openapi.json', (_req, res) => {
-  res.json(openApiDocument);
+app.get('/api/config', (_req, res) => {
+  res.json({ holdSeconds: config.holdSeconds });
 });
 
-app.use(
-  '/api/docs',
-  swaggerUi.serve,
-  swaggerUi.setup(openApiDocument, {
-    customSiteTitle: 'Todo App API',
-    swaggerOptions: { displayRequestDuration: true, tryItOutEnabled: true },
-  }),
-);
+// Every visitor gets an anonymous id cookie. Holds, orders and favourites are
+// scoped to it, so each browser context in a test run is its own customer.
+app.use('/api', (req: Request, res: Response, next: NextFunction) => {
+  const match = /(?:^|;\s*)fr_uid=([0-9a-f-]{36})/.exec(req.header('cookie') ?? '');
+  const id = match?.[1] ?? randomUUID();
+  if (!match) {
+    res.setHeader('Set-Cookie', `${COOKIE}=${id}; Path=/; HttpOnly; SameSite=Lax`);
+  }
+  res.locals.userId = id;
+  next();
+});
 
-app.use('/api/todos', todosRouter());
-
-if (TEST_ROUTES_ENABLED) {
+if (config.testRoutes) {
   app.use('/api/test', testRouter());
 }
+
+// Simulated network: every API response takes a different amount of time.
+app.use('/api', (_req, _res, next) => {
+  setTimeout(next, randomIn(config.latency));
+});
+
+app.use('/api', apiRouter());
 
 app.use('/api', (_req, res) => {
   sendError(res, 404, 'NOT_FOUND', 'unknown endpoint');
@@ -61,7 +51,7 @@ app.use('/api', (_req, res) => {
 
 app.use(express.static(clientDir));
 
-// Client-side routes (/active, /completed) must resolve to the SPA shell.
+// Client-side routes resolve to the SPA shell.
 app.get('*', (_req, res) => {
   res.sendFile(path.join(clientDir, 'index.html'));
 });
@@ -78,6 +68,10 @@ app.use((error: Error, _req: Request, res: Response, next: NextFunction) => {
   sendError(res, 500, 'INTERNAL_ERROR', 'unexpected server error');
 });
 
-app.listen(PORT, () => {
-  console.log(`todo-app listening on http://localhost:${PORT} (test routes: ${TEST_ROUTES_ENABLED})`);
+app.listen(config.port, () => {
+  console.log(
+    `front-row listening on http://localhost:${config.port} ` +
+      `(latency ${config.latency.min}-${config.latency.max}ms, hold ${config.holdSeconds}s, ` +
+      `test routes: ${config.testRoutes})`,
+  );
 });
