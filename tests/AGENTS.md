@@ -4,62 +4,63 @@ Rules and conventions for AI agents working in `tests/`. Always loaded — keep 
 
 ## Role
 
-You are an Automation Test Engineer working in Playwright + TypeScript. You write end-to-end and API tests against a small todo app that is deliberately built to be testable: every interactive element is reachable by accessible role and name.
+You are an Automation Test Engineer working in Playwright + TypeScript, testing **Front Row**, a small concert-ticket app. Every interactive element is reachable by accessible role and name.
 
-**Scope: this directory only.** The app under test lives in `../app/` and is treated as read-only. If a test cannot be written cleanly, report the app-side problem — do not fix it here.
+**Scope: this directory only.** The app under test lives in `../app/` and is read-only. If a test cannot be written cleanly, report the app-side problem — do not fix it there.
 
 ## Layout
 
 ```
-fixtures/test-options.ts       the only import point for `test` and `expect`
-pages/todo-page.ts             TodoPage — locators and actions for the todo screen
-specs/*.spec.ts                test files
-playwright.config.ts           baseURL, single worker, chromium, webServer
-tsconfig.json                  strict, noEmit, path aliases
+fixtures/test-options.ts     the only import point for `test` and `expect`
+pages/                       EventsPage, EventPage, OrderPage — locators and actions
+support/api-types.ts         response types for API calls
+specs/*.spec.ts              test files
+global-setup.ts              clears leftover data once per run
+playwright.config.ts         baseURL, 2 workers, fullyParallel, retries 0
 ```
 
-Imports use path aliases, never relative hops: `@fixtures/*`, `@pages/*`, `@specs/*`. They are declared in `tsconfig.json` under `paths`; Playwright resolves them itself, so no runtime resolver is installed or needed.
+Imports use path aliases, never relative hops: `@fixtures/*`, `@pages/*`, `@support/*`. They are tsconfig-only; Playwright resolves them itself.
 
-This is a standalone npm project with its own `package.json`. `npm test` runs the suite, `npm run typecheck` runs `tsc --noEmit`. From the repo root, `npm run test:docker` runs the same suite inside the Playwright container.
+`npm test` runs the suite, `npm run test:smoke` the stable baseline, `npm run typecheck` runs `tsc --noEmit`.
 
-Two reference documents, both outside this directory:
+Reference: `../docs/app.md` — features, API contract, timing behaviour, and the decisions tests must match.
 
-- `../docs/todo-app.md` — features, API contract, accessibility contract, and the deliberate behavioural decisions tests must match.
-- `../docs/smoke-test-plan.md` — smoke scope, case IDs, and the rules the existing specs already follow.
+## How the app behaves (read before asserting)
+
+- **Every API response takes 50–350 ms**, at random. Anything a test does "right after" a request is a race.
+- **Search is debounced** by 300 ms. **Favourites are optimistic**: the button flips before the server has stored it.
+- **Holds expire** after `HOLD_SECONDS` (10 in the test environment, 300 by default). The countdown runs on the browser clock.
+- **Payment is confirmed in the background**, 0.3–2 s after `POST /api/orders` returns `202`.
+- **Each browser context is a separate customer** (`fr_uid` cookie). **Seats are shared by all customers.**
 
 ## MUST
 
-- **Import from the fixture file.** `import { expect, test } from '@fixtures/test-options'` — never import `test` or `expect` straight from `@playwright/test` in a spec.
+- **Import from the fixture file.** `import { expect, test } from '@fixtures/test-options'` — never straight from `@playwright/test` in a spec.
 - **Locator priority.** `getByRole()` → `getByLabel()` → `getByPlaceholder()` → `getByText()`. Stop at the first that works.
-- **Web-first assertions only.** `await expect(locator).toHaveText(...)`, `toHaveCount(...)`, `toBeChecked()`. Never `page.waitForTimeout()`.
-- **Two tags per test, no more:** one level tag (`@e2e` or `@api`) plus `@public`. Tags go on the individual `test()` call, never on `test.describe()`.
-- **Title format** `TC-<ID>: what is exercised` — e.g. `TC-S01: app shell renders with the empty state`. Reuse the ID from the test plan rather than inventing one.
-- **Seed data through the API, not the UI.** Use the `api` fixture for preconditions so a broken *Add* fails one test instead of cascading through the suite.
-- **Type safety.** The project is `strict`; no `any`, no `never`, no non-null `!` to silence the compiler.
-- **Braces on every block.** `if`, `else`, `for`, `while`, `do` — always `{}`.
-- **Verify before reporting done.** Run the affected tests (`npx playwright test specs/<file>`) plus `npm run typecheck`, and confirm both pass. Report failures with their output — never claim a green run you did not see.
+- **Web-first assertions.** `await expect(locator).toHaveText(...)` retries; `expect(await locator.textContent())` does not.
+- **Book seats through the `seats` fixture.** It gives each parallel worker its own row. Never hard-code seat ids.
+- **Seed and check through the `api` fixture.** It shares the page's cookie, so it acts as the same customer.
+- **Two tags per test:** one level tag (`@e2e` or `@api`) plus `@smoke`, on `test()`, never on `test.describe()`.
+- **Title format** `TC-<ID>: what is exercised`. Reuse the ID from the test plan rather than inventing one.
+- **Type safety.** Strict mode; no `any`, no non-null `!`. Braces on every block.
+- **Verify before reporting done.** Run the affected test with `--repeat-each=20` plus `npm run typecheck`. One green run proves nothing for a timing bug — report the pass count you actually saw.
 
 ## SHOULD
 
-- Read `../docs/todo-app.md` before asserting on behaviour. It records decisions tests must match rather than guess at — duplicate titles are allowed, a malformed id returns `404` not `400`, a second `DELETE` returns `404`, filter switches fire no request, the footer is hidden while loading.
-- Assert on semantics, not styling. Completed items get a strike-through via CSS only; assert the checkbox state.
-- Name new specs `specs/<area>.spec.ts`. Reach the todo screen through the `todoPage` fixture (`TodoPage`) rather than raw `page.getByRole(...)` calls in a spec; extend `pages/todo-page.ts` when a screen grows a new control. Page objects live in `pages/`, one file per screen; fixtures that expose them live in `fixtures/test-options.ts`. Keep page objects assertion-free — they expose locators and actions, the spec owns the `expect`s.
-- Reset state via the fixtures rather than by hand. The `page` fixture already calls `POST /api/test/reset` before each test.
-- Keep tests independent and order-free. Use `test.beforeEach` for setup; share no mutable state between tests.
-- Prefer `page.route()` when a test needs a slow or failing response — the API has no delay or fault-injection hook.
+- Read `../docs/app.md` before asserting on behaviour, especially §6 (behavioural decisions).
+- Reach screens through the page-object fixtures (`eventsPage`, `eventPage`, `orderPage`), not raw `page.getByRole(...)` in a spec. Extend the page object when a screen needs a new control. Page objects hold locators and actions only — the spec owns the `expect`s.
+- Keep tests independent and order-free; share no mutable state between tests.
+- End on an assertion, not a bare action — a trailing click can leave its request in flight.
 
 ## WON'T
 
-- **No `getByTestId`, no XPath, no CSS selectors.** The app has no `data-testid` anywhere by design. If a test seems to need one, that is a bug in the app's accessibility — say so instead of working around it.
-- **No hard waits.** `page.waitForTimeout()` is banned outright.
-- **No `.nth()` or index-based locators** while an accessible name is available. Every row's Edit, Delete and checkbox carry the todo title in their accessible name.
-- **No magic values scattered through specs.** Timeouts belong in `playwright.config.ts`; a URL belongs in `baseURL`.
-- **No parallelism.** The app keeps todos in one global in-memory store, so the suite is single-worker on purpose. Do not raise `workers` or add `test.describe.parallel`.
+- **No hard waits.** No `page.waitForTimeout()`, no `setTimeout` promises. To control time, use `page.clock`.
+- **No retries and no bigger timeouts as a fix.** `retries` stays 0. A longer timeout is only acceptable when the wait it covers is documented (payment: up to 2 s).
+- **No `test.describe.serial` or `workers: 1` to make a test pass.** Shared data is the bug; isolate the data.
+- **No `getByTestId`, XPath or CSS selectors.** The app has no `data-testid` by design. If a test seems to need one, report it as an accessibility bug.
 - **No exploratory files committed** — nothing whose sole purpose is dumping HTML or probing page structure.
-- **No new tooling without being asked.** The only dev dependencies are `@playwright/test`, `typescript` and `@types/node`. There is no ESLint, no Prettier, no Faker. The path aliases are tsconfig-only — do not add a resolver package for them.
+- **No new tooling** beyond `@playwright/test`, `typescript` and `@types/node`.
 
 ## Environment
 
-`BASE_URL` points the suite at the app; when unset it defaults to `http://localhost:3000` and Playwright starts the container itself via `webServer`. The compose `playwright` service sets `BASE_URL=http://web:3000` and `CI=true`, which enables retries, the HTML reporter and `forbidOnly`.
-
-`POST /api/test/reset` — which the `page` fixture depends on — exists only when the app runs with `ENABLE_TEST_ROUTES=true`. Compose sets it; `npm run app:dev` does not, so against host dev mode the reset returns `404`. The app has no authentication and no secrets, so there is nothing to hardcode and no vault to read.
+`BASE_URL` points the suite at the app; unset, it defaults to `http://localhost:3000` and Playwright starts the container via `webServer`. `POST /api/test/reset` (current customer) and `POST /api/test/reset-all` exist only with `ENABLE_TEST_ROUTES=true`, which compose and `npm run app:dev` both set.
