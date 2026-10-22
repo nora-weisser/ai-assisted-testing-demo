@@ -37,9 +37,9 @@ The same three layers do both jobs: the facts in `AGENTS.md` stop the agent writ
 
 ## What's here
 
-- [`tests/AGENTS.md`](tests/AGENTS.md) — the always-on layer. Short on purpose. **Start here.** [`tests/CLAUDE.md`](tests/CLAUDE.md) imports it for Claude Code.
-- [`tests/.claude/skills/`](tests/.claude/skills/) — `implement-test-case`, `fix-flaky-test`, `playwright-cli`, `playwright-trace` and `skill-creator`
-- [`tests/.claude/prompts/`](tests/.claude/prompts/) — reusable prompts
+- [`AGENTS.md`](AGENTS.md) — the always-on layer. Short on purpose. **Start here.** [`CLAUDE.md`](CLAUDE.md) imports it for Claude Code, which doesn't read `AGENTS.md` on its own.
+- [`.claude/skills/`](.claude/skills/) — `implement-test-case`, `fix-flaky-test`, `playwright-cli`, `playwright-trace` and `skill-creator`
+- [`.claude/prompts/`](.claude/prompts/) — reusable prompts
 - [`docs/test-plan.md`](docs/test-plan.md) — plain-language test plan, the input for creating tests
 - [`docs/exercises.md`](docs/exercises.md) — the five flaky-test exercises, with starter prompts and hints
 - [`docs/commands.md`](docs/commands.md) — every command, prompt and skill from the talk, in demo order
@@ -67,7 +67,7 @@ npm run test:flaky             # the exercises, 20 repeats each — these fail o
 
 Stop everything with `npm run app:down` from the repo root.
 
-Needs Node.js 22, Docker and a coding agent with shell access (Claude Code, Copilot CLI, or Cursor). Start the agent **in `tests/`**, so it loads `AGENTS.md`.
+Needs Node.js 22, Docker and a coding agent with shell access (Claude Code, Copilot CLI, or Cursor). Start the agent **at the repo root**, so it loads `AGENTS.md` and the skills.
 
 ---
 
@@ -102,9 +102,9 @@ reproduce the whole demo:
 
 ## License
 
-[MIT](LICENSE), except the third-party skills in `tests/.claude/skills/`, which keep their own licences:
+[MIT](LICENSE), except the third-party skills in `.claude/skills/`, which keep their own licences:
 `playwright-cli` and `playwright-trace` are installed from Microsoft's Playwright tools (Apache 2.0),
-and `skill-creator` ships with its own [Apache 2.0 licence](tests/.claude/skills/skill-creator/LICENSE.txt).
+and `skill-creator` ships with its own [Apache 2.0 licence](.claude/skills/skill-creator/LICENSE.txt).
 
 ## Find me
 

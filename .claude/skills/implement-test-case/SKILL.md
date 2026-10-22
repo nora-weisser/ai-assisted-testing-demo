@@ -11,7 +11,7 @@ Given a case ID such as `TC-S06`, produce the spec that automates it — and not
 ## 1. Read before writing
 
 - `docs/test-plan.md` — the case's own line: what it does and what it asserts. Do not widen the case beyond it.
-- `tests/AGENTS.md` — the MUST/SHOULD/WON'T rules and "How the app behaves". They are binding, not advisory.
+- `AGENTS.md` — the MUST/SHOULD/WON'T rules and "How the app behaves". They are binding, not advisory.
 - `docs/app.md` §2 (screens) and §6 (behavioural decisions) — behaviour the test must match rather than guess at.
 - `tests/specs/*.spec.ts` and `tests/pages/*.ts` — match the shape of what is already there.
 
@@ -50,4 +50,4 @@ Close the browser when done. The `.playwright-cli/` snapshots are gitignored —
 cd tests && npm run typecheck && npx playwright test specs/<file>.spec.ts --repeat-each=20
 ```
 
-Both must pass, 20 of 20. Report the actual pass count; never claim a green run you did not see. If the case cannot be written cleanly because of an app-side problem — a missing accessible name, an ambiguous role — say so and stop. `../app/` is read-only.
+Both must pass, 20 of 20. Report the actual pass count; never claim a green run you did not see. If the case cannot be written cleanly because of an app-side problem — a missing accessible name, an ambiguous role — say so and stop. `app/` is read-only.

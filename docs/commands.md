@@ -16,7 +16,8 @@ npm run test:flaky        # the exercises — these fail on purpose (step 4)
 
 Stop everything with `npm run app:down` from the repo root when you're finished.
 
-Start your agent **in `tests/`**: that's where `CLAUDE.md` imports `AGENTS.md`.
+Start your agent **at the repo root**: that's where `CLAUDE.md` imports `AGENTS.md`, and where `.claude/skills/`
+lives. Terminal commands below still run from `tests/` unless noted.
 
 ---
 
@@ -41,15 +42,15 @@ npx playwright trace install-skill    # -> playwright-trace/ : reading a trace f
 
 The other three are already in this repo, hand-written rather than installed — copy the folder and they work anywhere:
 
-- [`tests/.claude/skills/implement-test-case/`](../tests/.claude/skills/implement-test-case/) — the workflow used in step 3
-- [`tests/.claude/skills/fix-flaky-test/`](../tests/.claude/skills/fix-flaky-test/) — the workflow used in step 4
-- [`tests/.claude/skills/skill-creator/`](../tests/.claude/skills/skill-creator/) — writes and evaluates the others
+- [`.claude/skills/implement-test-case/`](../.claude/skills/implement-test-case/) — the workflow used in step 3
+- [`.claude/skills/fix-flaky-test/`](../.claude/skills/fix-flaky-test/) — the workflow used in step 4
+- [`.claude/skills/skill-creator/`](../.claude/skills/skill-creator/) — writes and evaluates the others
 
 Check what you've got, and read one before you trust it:
 
 ```bash
-ls -1 tests/.claude/skills/
-cat tests/.claude/skills/implement-test-case/SKILL.md
+ls -1 .claude/skills/
+cat .claude/skills/implement-test-case/SKILL.md
 ```
 
 **Read skills before installing them.** An installed skill is instructions your agent will follow. Treat it like a dependency you're about to ship, because that's what it is.
@@ -97,7 +98,7 @@ Run `playwright-cli --help` for the full surface — it's larger than this.
 
 `TC-S01` to `TC-S05` are already automated in [`tests/specs/smoke.spec.ts`](../tests/specs/smoke.spec.ts).
 `TC-S06` onwards are not — see [`docs/test-plan.md`](test-plan.md). Start a fresh agent session
-**in `tests/`** (that's where `CLAUDE.md` loads `AGENTS.md`) and send exactly this:
+**at the repo root** (that's where `CLAUDE.md` loads `AGENTS.md`) and send exactly this:
 
 ```
 Implement test case TC-S06 from the docs/test-plan.md test plan
@@ -126,11 +127,11 @@ reloads straight away, and fails about one run in four.
 
 ```bash
 # off
-mv tests/CLAUDE.md tests/CLAUDE.md.off
-mv tests/.claude/skills/implement-test-case /tmp/implement-test-case
+mv CLAUDE.md CLAUDE.md.off
+mv .claude/skills/implement-test-case /tmp/implement-test-case
 # back on
-mv tests/CLAUDE.md.off tests/CLAUDE.md
-mv /tmp/implement-test-case tests/.claude/skills/implement-test-case
+mv CLAUDE.md.off CLAUDE.md
+mv /tmp/implement-test-case .claude/skills/implement-test-case
 ```
 
 Other cases with a timing trap: `TC-S08` (a `202` payment), `TC-S09` (debounced search),
@@ -159,17 +160,17 @@ npx playwright trace snapshot <action-id>     # the DOM at that step: six cards,
 npx playwright trace close
 ```
 
-Then hand it over, in a fresh session in `tests/`:
+Then hand it over, in a fresh session at the repo root:
 
 ```
-specs/flaky/f01-search.spec.ts is flaky. Find the root cause and fix it.
+tests/specs/flaky/f01-search.spec.ts is flaky. Find the root cause and fix it.
 ```
 
 The `fix-flaky-test` skill should fire on its own. For more structure, use the prompt
-[`tests/.claude/prompts/fix_flaky_test.md`](../tests/.claude/prompts/fix_flaky_test.md):
+[`.claude/prompts/fix_flaky_test.md`](../.claude/prompts/fix_flaky_test.md):
 
 ```
-@.claude/prompts/fix_flaky_test.md specs/flaky/f01-search.spec.ts
+@.claude/prompts/fix_flaky_test.md tests/specs/flaky/f01-search.spec.ts
 ```
 
 What a good answer looks like: the root cause in one sentence (it waited for the page's initial,
@@ -213,10 +214,10 @@ Would you debug this way? Probably not, you have an IDE. But an agent can't clic
 or drag a timeline, and this is the same debugger in a form it can operate.
 
 Ask the agent, with the prompt
-[`tests/.claude/prompts/debug_playwright_test.md`](../tests/.claude/prompts/debug_playwright_test.md):
+[`.claude/prompts/debug_playwright_test.md`](../.claude/prompts/debug_playwright_test.md):
 
 ```
-@.claude/prompts/debug_playwright_test.md specs/flaky/f01-search.spec.ts
+@.claude/prompts/debug_playwright_test.md tests/specs/flaky/f01-search.spec.ts
 ```
 
 ---
@@ -224,7 +225,7 @@ Ask the agent, with the prompt
 ## 6. Bonus: annotate a page and get fixes back
 
 Not in the talk if I run short. Full prompt in
-[`tests/.claude/prompts/annotation_feedback.md`](../tests/.claude/prompts/annotation_feedback.md):
+[`.claude/prompts/annotation_feedback.md`](../.claude/prompts/annotation_feedback.md):
 
 ```
 Please use Playwright CLI to run an interactive annotation session for this page:
@@ -233,7 +234,7 @@ http://localhost:3000
 
 OR with the prompt:
 ```
-@tests/.claude/prompts/annotation_feedback.md  http://localhost:3000
+@.claude/prompts/annotation_feedback.md  http://localhost:3000
 
 ```
 

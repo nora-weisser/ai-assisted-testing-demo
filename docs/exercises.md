@@ -19,7 +19,8 @@ cd tests && npm install
 npm run test:smoke        # 5 tests, should be green — your baseline
 ```
 
-Start your agent **in `tests/`**, so it loads `CLAUDE.md` → `AGENTS.md`.
+Start your agent **at the repo root**, so it loads `CLAUDE.md` → `AGENTS.md` and the skills.
+The commands below run from `tests/`; the starter prompts use repo-root paths.
 
 Have a look at the app in a browser first. Search for something, favourite an
 event, hold some seats, pay. Two minutes of clicking explains most of what
@@ -54,7 +55,7 @@ npx playwright test specs/flaky/f01-search.spec.ts --repeat-each=20
 **Starter prompt**
 
 ```
-specs/flaky/f01-search.spec.ts is flaky: it fails most of the time, but not always.
+tests/specs/flaky/f01-search.spec.ts is flaky: it fails most of the time, but not always.
 Reproduce it with --repeat-each=20, open the trace of a failing run, and tell me
 which network response the test was actually waiting for. Then fix the test
 without adding any waits, and prove the fix with --repeat-each=20.
@@ -89,7 +90,7 @@ npx playwright test specs/flaky/f02-favourite.spec.ts --repeat-each=20
 **Starter prompt**
 
 ```
-specs/flaky/f02-favourite.spec.ts fails about a third of the time. Reproduce it,
+tests/specs/flaky/f02-favourite.spec.ts fails about a third of the time. Reproduce it,
 then compare the network activity in a failing trace and a passing trace. The test
 asserts aria-pressed="true" before reloading — explain why that assertion doesn't
 protect it. Fix the test, not the app.
@@ -123,7 +124,7 @@ npx playwright test specs/flaky/f03-payment.spec.ts --repeat-each=20
 **Starter prompt**
 
 ```
-specs/flaky/f03-payment.spec.ts is an API test that fails about half the time.
+tests/specs/flaky/f03-payment.spec.ts is an API test that fails about half the time.
 Read docs/app.md for how orders are processed, then explain the failure. Replace
 the sleep with something that waits exactly as long as needed and no longer, and
 gives a useful message if the order is never confirmed.
@@ -157,7 +158,7 @@ npx playwright test specs/flaky/f04-hold-expiry.spec.ts --repeat-each=10
 **Starter prompt**
 
 ```
-specs/flaky/f04-hold-expiry.spec.ts waits 10.2 s for a 10 s seat hold to expire, and
+tests/specs/flaky/f04-hold-expiry.spec.ts waits 10.2 s for a 10 s seat hold to expire, and
 fails about half the time. Explain where the margin goes. Then rewrite it so
 it doesn't wait in real time at all, and so it would still pass if HOLD_SECONDS
 were changed to 300.
@@ -199,7 +200,7 @@ npx playwright test specs/flaky/f05-front-row.spec.ts -g "05a"
 **Starter prompt**
 
 ```
-The two tests in specs/flaky/f05-front-row.spec.ts each pass alone but one of them
+The two tests in tests/specs/flaky/f05-front-row.spec.ts each pass alone but one of them
 fails in most runs of the file, and it isn't always the same one. Work out what the
 two tests share and why the failure moves between them. Fix it so the tests can
 keep running in parallel — "use one worker" is not the fix.
@@ -213,7 +214,7 @@ Each test is a separate customer. What do customers share?
 
 <details><summary>Hint 2</summary>
 
-Read `tests/AGENTS.md` and `fixtures/test-options.ts`. Is there a rule this file breaks?
+Read `AGENTS.md` and `tests/fixtures/test-options.ts`. Is there a rule this file breaks?
 
 </details>
 
@@ -225,7 +226,7 @@ Read `tests/AGENTS.md` and `fixtures/test-options.ts`. Is there a rule this file
 
 **Context makes the difference.** Run the same exercise twice in fresh agent
 sessions: once with the "How the app behaves" section deleted from
-`tests/AGENTS.md`, once with it. Compare how fast the agent gets to the root
+`AGENTS.md`, once with it. Compare how fast the agent gets to the root
 cause and how many workarounds it proposes first.
 
 **Bad fix bingo.** Before fixing anything, ask the agent for "the quickest way
@@ -238,5 +239,5 @@ and rerun the flaky folder. Exercises 01, 02 and 04 go green; 03 and 05 keep
 failing. Why those two? (This is why "works on my machine" happens, and why it
 doesn't explain every flake.)
 
-**Use the skill.** `tests/.claude/skills/fix-flaky-test/` is a workflow for
+**Use the skill.** `.claude/skills/fix-flaky-test/` is a workflow for
 exactly this job. Run an exercise without it, then with it, and compare.
