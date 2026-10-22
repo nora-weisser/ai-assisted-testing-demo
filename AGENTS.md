@@ -1,30 +1,31 @@
 # Agent Instructions — Test Project
 
-Rules and conventions for AI agents working in `tests/`. Always loaded — keep it short.
+Rules and conventions for AI agents working in this repo. Always loaded — keep it short. `CLAUDE.md` imports it for Claude Code.
 
 ## Role
 
 You are an Automation Test Engineer working in Playwright + TypeScript, testing **Front Row**, a small concert-ticket app. Every interactive element is reachable by accessible role and name.
 
-**Scope: this directory only.** The app under test lives in `../app/` and is read-only. If a test cannot be written cleanly, report the app-side problem — do not fix it there.
+**Scope: `tests/` only.** The app under test lives in `app/` and is read-only. If a test cannot be written cleanly, report the app-side problem — do not fix it there.
 
 ## Layout
 
 ```
-fixtures/test-options.ts     the only import point for `test` and `expect`
-pages/                       EventsPage, EventPage, OrderPage — locators and actions
-support/api-types.ts         response types for API calls
-specs/*.spec.ts              test files
-specs/flaky/                 workshop exercises: deliberately flaky, don't fix unless asked
-global-setup.ts              clears leftover data once per run
-playwright.config.ts         baseURL, 2 workers, fullyParallel, retries 0
+tests/fixtures/test-options.ts   the only import point for `test` and `expect`
+tests/pages/                     EventsPage, EventPage, OrderPage — locators and actions
+tests/support/api-types.ts       response types for API calls
+tests/specs/*.spec.ts            test files
+tests/specs/flaky/               workshop exercises: deliberately flaky, don't fix unless asked
+tests/global-setup.ts            clears leftover data once per run
+tests/playwright.config.ts       baseURL, 2 workers, fullyParallel, retries 0
+.claude/skills/                  skills, loaded when a task matches
 ```
 
 Imports use path aliases, never relative hops: `@fixtures/*`, `@pages/*`, `@support/*`. They are tsconfig-only; Playwright resolves them itself.
 
-`npm test` runs the suite, `npm run test:smoke` the stable baseline, `npm run typecheck` runs `tsc --noEmit`.
+Run test commands from `tests/`: `npm test` runs the suite, `npm run test:smoke` the stable baseline, `npm run typecheck` runs `tsc --noEmit`. `npm run app:up` / `app:down` (repo root) start and stop the app.
 
-Reference: `../docs/app.md` — features, API contract, timing behaviour, and the decisions tests must match.
+Reference: `docs/app.md` — features, API contract, timing behaviour, and the decisions tests must match.
 
 ## How the app behaves (read before asserting)
 
@@ -48,7 +49,7 @@ Reference: `../docs/app.md` — features, API contract, timing behaviour, and th
 
 ## SHOULD
 
-- Read `../docs/app.md` before asserting on behaviour, especially §6 (behavioural decisions).
+- Read `docs/app.md` before asserting on behaviour, especially §6 (behavioural decisions).
 - Reach screens through the page-object fixtures (`eventsPage`, `eventPage`, `orderPage`), not raw `page.getByRole(...)` in a spec. Extend the page object when a screen needs a new control. Page objects hold locators and actions only — the spec owns the `expect`s.
 - Keep tests independent and order-free; share no mutable state between tests.
 - End on an assertion, not a bare action — a trailing click can leave its request in flight.

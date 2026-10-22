@@ -10,7 +10,7 @@ Please do the following:
 2. Rerun with `--trace on` so passing runs keep a trace too. Read a failing and a
    passing trace with `npx playwright trace …`, and compare the network activity
    and the DOM at the failing step.
-3. Read `../docs/app.md` for how the feature behaves, and check the test against
+3. Read `docs/app.md` for how the feature behaves, and check the test against
    `AGENTS.md` and the fixtures.
 4. State the root cause in one sentence.
 5. Fix the test. No retries, sleeps, longer timeouts, serial mode or single worker.
@@ -25,5 +25,5 @@ Expected output:
 
 ## Example
 
-specs/flaky/f02-favourite.spec.ts is flaky. Reproduce it, find the root cause in
+tests/specs/flaky/f02-favourite.spec.ts is flaky. Reproduce it, find the root cause in
 the traces, fix it without retries or waits, and prove the fix over 20 runs.

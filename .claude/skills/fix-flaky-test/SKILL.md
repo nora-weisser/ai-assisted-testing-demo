@@ -10,10 +10,10 @@ The job is to find that assumption, not to make the symptom rarer.
 
 ## 1. Reproduce and measure
 
-Never trust a single run. Run the test repeatedly and record the pass count:
+Never trust a single run. Run the test repeatedly from `tests/` and record the pass count:
 
 ```bash
-npx playwright test <file> --repeat-each=20
+cd tests && npx playwright test <file> --repeat-each=20
 ```
 
 If it never fails with `--repeat-each`, the flake may depend on which tests run
