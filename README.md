@@ -61,6 +61,7 @@ git clone https://github.com/nora-weisser/ai-assisted-testing-demo
 cd ai-assisted-testing-demo
 npm run app:up                 # http://localhost:3000 (Docker)
 cd tests && npm install
+npx playwright install chromium  # the browser; npm install doesn't download it
 npm run test:smoke             # the stable baseline: 5 green tests
 npm run test:flaky             # the exercises, 20 repeats each — these fail on purpose
 ```
