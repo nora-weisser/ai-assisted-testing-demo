@@ -16,6 +16,7 @@ Answers are on the `solutions` branch (`git checkout solutions`). Try first.
 ```bash
 npm run app:up            # starts Front Row on http://localhost:3000
 cd tests && npm install
+npx playwright install chromium   # the browser; npm install doesn't download it
 npm run test:smoke        # 5 tests, should be green — your baseline
 ```
 

@@ -29,6 +29,7 @@ cd ai-assisted-testing-demo
 
 npm run app:up            # Front Row on http://localhost:3000 (needs Docker)
 cd tests && npm install
+npx playwright install chromium   # the browser; npm install doesn't download it
 npm run test:smoke        # 5 green tests: the baseline
 cd ..
 ```
